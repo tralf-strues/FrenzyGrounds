@@ -11,7 +11,7 @@ class AGunBase;
 USTRUCT(BlueprintType)
 struct FGunInfo
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gun")
 	TSubclassOf<class AGunBase> GunBlueprint;
