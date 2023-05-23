@@ -17,6 +17,7 @@ class USoundBase;
 class USpringArmComponent;
 
 class AGunBase;
+class APickUpItem;
 
 UCLASS(config=Game)
 class AFrenzyGroundsCharacter : public ACharacter
@@ -62,12 +63,6 @@ class AFrenzyGroundsCharacter : public ACharacter
 	AGunBase* GunCosmetic3P_Shadow;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = Character, meta = (AllowPrivateAccess = "true"))
-	float Health = 100.0f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = Character, meta = (AllowPrivateAccess = "true"))
-	float MaxHealth = 100.0f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = Character, meta = (AllowPrivateAccess = "true"))
 	int32 CurrentGunIdx = -1;
 
 public:
@@ -91,6 +86,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shooting")
 	UAnimMontage* ShootAnimation3P;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = Character, meta = (AllowPrivateAccess = "true"))
+	float Health = 100.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = Character, meta = (AllowPrivateAccess = "true"))
+	float MaxHealth = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Shooting")
 	TArray<FGunInfo> AvailiableGuns;
@@ -148,7 +149,13 @@ protected:
 
 	UFUNCTION(Client, Reliable)
 	void Client_OnDeath();
+
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
+	UFUNCTION(Server, Reliable)
+	void Server_ApplyPickUpItem(APickUpItem* PickUpItem);
+
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
@@ -156,6 +163,12 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+	
+	int32 GetCurrentGunIdx() const { return CurrentGunIdx; }
+
+	AGunBase* GetGun() { return Gun; }
+	AGunBase* GetGunCosmetic3P() { return GunCosmetic3P; }
+	AGunBase* GetGunCosmetic3P_Shadow() { return GunCosmetic3P_Shadow; }
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 

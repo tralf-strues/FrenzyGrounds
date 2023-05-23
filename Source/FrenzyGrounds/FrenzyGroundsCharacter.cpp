@@ -12,6 +12,7 @@
 #include "MotionControllerComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GunBase.h"
+#include "PickUpItem.h"
 #include "Components/ChildActorComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -74,6 +75,9 @@ void AFrenzyGroundsCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	Mesh3P_Legs->HideBoneByName("spine_01", PBO_None);
+
+	UE_LOG(LogTemp, Warning, TEXT("Taking damage GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic()"));
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AFrenzyGroundsCharacter::OnOverlapBegin);
 }
 
 void AFrenzyGroundsCharacter::Tick(float DeltaSeconds)
@@ -384,3 +388,19 @@ void AFrenzyGroundsCharacter::OnShoot()
 		GunCosmetic3P->OnShootVisualEffects();
 	}
 }
+
+void AFrenzyGroundsCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnOverlapBegin"));
+
+	if (OtherActor->ActorHasTag("PickUpItem"))
+	{
+		Server_ApplyPickUpItem(dynamic_cast<APickUpItem*>(OtherActor));
+	}
+}
+
+void AFrenzyGroundsCharacter::Server_ApplyPickUpItem_Implementation(APickUpItem* PickUpItem)
+{
+	PickUpItem->Apply(this);
+}
+
